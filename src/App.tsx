@@ -1,95 +1,131 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
 const navLinks = [
   { label: 'About', href: 'about' },
   { label: 'Skills', href: 'skills' },
   { label: 'Projects', href: 'projects' },
+  { label: 'Case Studies', href: 'case-studies' },
   { label: 'Journey', href: 'journey' },
-  { label: 'Certificates', href: 'certificates' },
   { label: 'Contact', href: 'contact' },
 ]
 
 const heroPhrases = [
-  'Full Stack Developer',
-  'Creative UI Enthusiast',
-  'Performance-Driven Engineer',
+  'Full-Stack Developer',
+  'Java & .NET Core Backend Developer',
+  'SQL & DevOps Enthusiast',
 ]
 
-const skills = [
-  { name: 'HTML5', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg' },
-  { name: 'CSS3', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg' },
-  { name: 'JavaScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
-  { name: 'React', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
-  { name: 'Tailwind CSS', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg' },
-  { name: 'Spring', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg' },
-  { name: 'Spring Boot', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original-wordmark.svg' },
-  { name: 'Hibernate', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/hibernate/hibernate-original.svg' },
-  { name: 'ASP.NET Core', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dotnetcore/dotnetcore-original.svg' },
-  { name: 'AWS', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' },
-  { name: 'PHP', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg' },
-  { name: 'MySQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg' },
+type SkillCategory = {
+  title: string
+  items: string[]
+}
+
+const skillCategories: SkillCategory[] = [
+  {
+    title: 'Frontend',
+    items: ['HTML', 'CSS', 'JavaScript', 'React', 'Tailwind CSS'],
+  },
+  {
+    title: 'Backend',
+    items: ['Java', 'Spring Boot', '.NET Core', 'PHP'],
+  },
+  {
+    title: 'Databases',
+    items: ['MySQL', 'SQL Server', 'MongoDB (basic)', 'PL/SQL'],
+  },
+  {
+    title: 'Tools & DevOps',
+    items: ['Git', 'GitHub', 'Docker', 'VS Code', 'Postman'],
+  },
+  {
+    title: 'Concepts',
+    items: ['OOP', 'DSA', 'REST APIs', 'JWT Auth', 'System Design (basics)', 'Multithreading (basics)'],
+  },
 ]
 
-const projects = [
+type Project = {
+  title: string
+  description: string
+  tech: string[]
+  codeUrl: string
+  demoUrl: string
+  image: string
+}
+
+const projects: Project[] = [
   {
-    title: 'AI-enabled Support Desk',
-    description: 'Conversational assistant that uses retrieval augmented generation to fast-track customer support resolutions.',
-    link: '#',
-    tags: ['AI', 'React', 'FastAPI'],
+    title: 'Parent-Teacher Bridge',
+    description:
+      'Full-stack educational management platform with role-based dashboards for admin, teachers, students and parents, including timetable management, messaging, and secure authentication.',
+    tech: ['React', '.NET Core', 'REST APIs', 'JWT', 'MS SQL Server'],
+    codeUrl: '#',
+    demoUrl: '#',
+    image: 'https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
-    title: 'Wellness Mobile App',
-    description: 'Cross-platform companion app with habit tracking, statistics, and delightful micro-interactions.',
-    link: '#',
-    tags: ['React Native', 'UX', 'Firebase'],
+    title: 'Inventory Management System',
+    description:
+      'College project for managing stock, suppliers, billing, and reports with powerful search and CRUD operations over a MySQL backend.',
+    tech: ['PHP', 'MySQL', 'Bootstrap', 'REST-style endpoints'],
+    codeUrl: '#',
+    demoUrl: '#',
+    image: 'https://images.pexels.com/photos/4484078/pexels-photo-4484078.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
+  {
+    title: 'Internship – Full-Stack Web App',
+    description:
+      'Worked as a full-stack intern building production modules: implemented CRUD features, dashboards, authentication, and optimised SQL queries as a lead developer on one of the core modules.',
+    tech: ['HTML', 'CSS', 'JavaScript', 'PHP', 'MySQL'],
+    codeUrl: '#',
+    demoUrl: '#',
+    image: 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  
 ]
 
 const timeline = [
-  { title: 'B.Tech Computer Science', place: 'University of Pune', period: '2021 - 2025' },
-  { title: 'Web Development Intern', place: 'WebDev Army', period: 'Summer 2024' },
-  { title: 'Freelance Projects', place: 'Global Clients', period: '2022 - Present' },
+  { title: 'B.Tech Computer Science', place: 'University of Pune', period: '2021 - 2024' },
+  { title: 'Full Stack Developer Intern', place: 'Tech Solve', period: 'Summer 2024' },
+  { title: 'Centre for Development of Advanced Computing', place: 'Pune', period: '2025' },
 ]
 
-const certificateFilters = [
-  { id: 'all', label: 'All' },
-  { id: 'web', label: 'Web Dev' },
-  { id: 'programming', label: 'Programming' },
-  { id: 'design', label: 'Design' },
-] as const
+type CaseStudy = {
+  title: string
+  role: string
+  problem: string
+  approach: string
+  outcome: string
+  tech: string[]
+}
 
-type CertificateFilter = (typeof certificateFilters)[number]['id']
-
-const certificates = [
+const caseStudies: CaseStudy[] = [
   {
-    id: 1,
-    title: 'Career Essentials: Generative AI',
-    category: 'programming' as CertificateFilter,
-    file: '/pdf/CertificateOfCompletion_Career Essentials in Generative AI by Microsoft and LinkedIn.pdf',
+    title: 'Parent-Teacher Bridge – Role-Based Educational Platform',
+    role: 'Full-Stack Developer',
+    problem:
+      'Schools needed a single portal to connect admins, teachers, students and parents with clear permissions and up-to-date information.',
+    approach:
+      'Designed a layered architecture with a .NET Core backend, React frontend, and MS SQL Server. Implemented JWT-based authentication, role-based access control, and modular APIs for timetables, messaging and academic data.',
+    outcome:
+      'Delivered a responsive, secure portal where each role only sees relevant actions and data, reducing manual coordination and improving transparency.',
+    tech: ['React', '.NET Core', 'JWT', 'MS SQL Server', 'REST APIs'],
   },
   {
-    id: 2,
-    title: 'Coursera: Modern Web Development',
-    category: 'web' as CertificateFilter,
-    file: '/pdf/Coursera 2AM2XQ9V77L4.pdf',
-  },
-  {
-    id: 3,
-    title: 'WebDev Army Internship',
-    category: 'web' as CertificateFilter,
-    file: '/pdf/WebDevArmy Certificate (52).pdf',
-  },
-  {
-    id: 4,
-    title: 'UX/UI Fundamentals',
-    category: 'design' as CertificateFilter,
-    file: '/pdf/Course Certificate.pptx.pdf',
+    title: 'Inventory Management System – College Project (3rd Place)',
+    role: 'Backend & Database Lead',
+    problem:
+      'Local businesses lacked a simple way to manage stock, suppliers, and billing while keeping data consistent and queryable.',
+    approach:
+      'Modelled a normalized MySQL schema, implemented PHP-based CRUD modules for products, suppliers, and invoices, and added reporting with search and filters. Focused on SQL performance and clear UI flows.',
+    outcome:
+      'Achieved reliable inventory tracking with fast lookups and printable reports, recognized with 3rd place in the college project competition.',
+    tech: ['PHP', 'MySQL', 'Bootstrap', 'SQL'],
   },
 ]
 
 const socialLinks = [
-  { icon: 'fa-github', label: 'GitHub', href: 'https://github.com/' },
+  { icon: 'fa-github', label: 'GitHub', href: 'https://github.com/YashChatse' },
   {
     icon: 'fa-linkedin',
     label: 'LinkedIn',
@@ -98,19 +134,32 @@ const socialLinks = [
   { icon: 'fa-x-twitter', label: 'Twitter', href: '#' },
   { icon: 'fa-instagram', label: 'Instagram', href: '#' },
 ]
-  
+
+// TODO: Replace with your actual Formspree form ID after creating a form
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xqarbdbz'
+
+type Theme = 'light' | 'dark'
+
 function App() {
+  const [theme, setTheme] = useState<Theme>('light')
   const [headerVisible, setHeaderVisible] = useState(true)
   const [typedText, setTypedText] = useState('')
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [certFilter, setCertFilter] = useState<CertificateFilter>('all')
-  const [visibleCertificates, setVisibleCertificates] = useState(4)
   const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
   const [showResume, setShowResume] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
   const lastScrollRef = useRef(0)
+
+  // Apply/remove Tailwind dark mode class on <html>
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [theme])
 
   useEffect(() => {
     const onScroll = () => {
@@ -149,33 +198,40 @@ function App() {
     return () => clearTimeout(timeout)
   }, [phraseIndex, isDeleting, typedText])
 
-  useEffect(() => {
-    setVisibleCertificates(4)
-  }, [certFilter])
-
-  const filteredCertificates = useMemo(() => {
-    if (certFilter === 'all') return certificates
-    return certificates.filter((cert) => cert.category === certFilter)
-  }, [certFilter])
-
-  const displayedCertificates = filteredCertificates.slice(0, visibleCertificates)
-  const canShowMore = visibleCertificates < filteredCertificates.length
+  const themeIcon = theme === 'dark' ? 'fa-sun' : 'fa-moon'
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId)
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (contactStatus === 'sending') return
     setContactStatus('sending')
     const form = event.currentTarget
-    setTimeout(() => {
+    try {
+      const formData = new FormData(form)
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
       form.reset()
       setContactStatus('sent')
       setTimeout(() => setContactStatus('idle'), 2500)
-    }, 1200)
+    } catch (error) {
+      console.error(error)
+      setContactStatus('idle')
+      alert('Something went wrong while sending your message. Please try again later.')
+    }
   }
 
   return (
@@ -198,6 +254,13 @@ function App() {
           </ul>
           <div className="flex items-center gap-2">
             <button
+              aria-label="Toggle theme"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              className="rounded-full border border-white/60 bg-white/70 p-2 text-primary shadow-soft transition hover:bg-secondary hover:text-white dark:border-slate-800 dark:bg-slate-800"
+            >
+              <i className={`fa-solid ${themeIcon} text-xs`}></i>
+            </button>
+            <button
               onClick={() => setShowResume(true)}
               className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-secondary"
             >
@@ -216,8 +279,8 @@ function App() {
             Yash <span className="text-secondary">Chatse</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base text-slate-200 md:text-lg">
-            I&apos;m a Software Developer specializing in building scalable web applications with clean, efficient code.
-            My expertise spans Java backend development, .NET backend development, and modern frontend frameworks.
+            I&apos;m a Full-Stack / Backend Developer focused on Java, .NET Core, SQL, and React. I build practical, production-ready
+            web applications with clean architectures, reliable APIs, and optimized databases.
           </p>
           <p className="mt-4 text-2xl font-light">
             {typedText}
@@ -230,6 +293,13 @@ function App() {
             >
               View Projects
             </button>
+            <a
+              href="/resume.pdf"
+              download
+              className="rounded-full border border-white px-8 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-white/10"
+            >
+              Download Resume
+            </a>
             <button
               onClick={() => scrollToSection('contact')}
               className="rounded-full border border-white px-8 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-white/10"
@@ -244,16 +314,18 @@ function App() {
       <section id="about" className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-12 rounded-[2.5rem] bg-white p-10 shadow-soft dark:bg-slate-900 md:grid-cols-[320px_1fr]">
           <div className="relative mx-auto h-80 w-80 overflow-hidden rounded-full border-8 border-white shadow-2xl dark:border-slate-800">
-            <img src="/image/WhatsApp Image 2024-12-22 at 13.38.34.jpeg" alt="Yash Chatse" className="h-full w-full object-cover" />
+            <img src="/image/yashme.jpeg" alt="Yash Chatse" className="h-full w-full object-cover" />
           </div>
           <div className="flex flex-col justify-center">
             <h2 className="section-title text-left md:text-left">About Me</h2>
             <p className="mt-6 text-lg text-slate-600 dark:text-slate-300">
-              I craft professional, responsive experiences that feel effortless to use. From concept to deployment I love creating products
-              that are visually clean, resilient, and performant.
+              I&apos;m a B.E. Computer Science graduate (2024) and CDAC DAC trainee with hands-on experience as a full-stack developer.
+              I enjoy building real products end-to-end — from designing database schemas and REST APIs to crafting responsive user
+              interfaces.
             </p>
             <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
-              Outside of code you&apos;ll find me exploring new AI workflows, reading non-fiction, or chasing new PRs at the gym.
+              My work focuses on clean architecture, structured and well-documented APIs, SQL-optimized queries, and secure coding
+              practices. Outside of coding you&apos;ll usually find me learning new backend / DevOps tools, working out, or gaming.
             </p>
           </div>
         </div>
@@ -262,12 +334,21 @@ function App() {
       {/* Skills */}
       <section id="skills" className="bg-muted-bg py-20 dark:bg-slate-950">
         <div className="mx-auto max-w-6xl px-6">
-          <h2 className="section-title">My Skills</h2>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {skills.map((skill) => (
-              <div key={skill.name} className="glass-card flex flex-col items-center text-center">
-                <img src={skill.logo} alt={skill.name} className="mb-3 h-10 w-10 object-contain" />
-                <h3 className="text-lg font-semibold">{skill.name}</h3>
+          <h2 className="section-title">Skills & Technologies</h2>
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {skillCategories.map((category) => (
+              <div key={category.title} className="glass-card flex flex-col">
+                <h3 className="text-xl font-semibold text-primary dark:text-indigo-200">{category.title}</h3>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {category.items.map((item) => (
+                    <li
+                      key={item}
+                      className="rounded-full bg-primary/5 px-3 py-1 text-sm text-slate-800 dark:bg-indigo-500/10 dark:text-slate-100"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -277,21 +358,42 @@ function App() {
       {/* Projects */}
       <section id="projects" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="section-title">Projects</h2>
-        <div className="mt-12 grid gap-8 md:grid-cols-2">
+        <p className="mx-auto mt-4 max-w-3xl text-center text-slate-600 dark:text-slate-300">
+          A selection of projects and practice work that showcase my experience across full-stack development, backend engineering,
+          databases, and DevOps fundamentals.
+        </p>
+        <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
-            <article key={project.title} className="glass-card flex h-full flex-col">
-              <h3 className="text-2xl font-semibold text-primary dark:text-indigo-200">{project.title}</h3>
-              <p className="mt-3 flex-1 text-slate-600 dark:text-slate-300">{project.description}</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-primary/10 px-4 py-1 text-sm text-primary dark:bg-indigo-400/20 dark:text-indigo-200">
+            <article key={project.title} className="glass-card flex h-full flex-col overflow-hidden">
+              <div className="h-40 w-full overflow-hidden rounded-2xl">
+                <img src={project.image} alt={project.title} className="h-full w-full object-cover" />
+              </div>
+              <h3 className="mt-4 text-2xl font-semibold text-primary dark:text-indigo-200">{project.title}</h3>
+              <p className="mt-3 flex-1 text-sm text-slate-600 dark:text-slate-300">{project.description}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {project.tech.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:bg-indigo-400/20 dark:text-indigo-200"
+                  >
                     {tag}
                   </span>
                 ))}
               </div>
-              <a href={project.link} className="mt-6 inline-flex items-center gap-2 text-secondary transition hover:text-primary">
-                Live Demo <i className="fa-solid fa-arrow-up-right-from-square text-sm"></i>
-              </a>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href={project.demoUrl}
+                  className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-primary"
+                >
+                  Live Demo <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+                <a
+                  href={project.codeUrl}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-800 transition hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-100"
+                >
+                  Source Code <i className="fa-brands fa-github text-sm"></i>
+                </a>
+              </div>
             </article>
           ))}
         </div>
@@ -318,66 +420,104 @@ function App() {
         </div>
       </section>
 
-      {/* Certificates */}
-      <section id="certificates" className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="section-title">Certificates</h2>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          {certificateFilters.map((filter) => (
-            <button
-              key={filter.id}
-              onClick={() => setCertFilter(filter.id)}
-              className={`rounded-full px-6 py-2 text-sm font-semibold transition ${
-                certFilter === filter.id ? 'bg-primary text-white' : 'bg-white text-slate-700 shadow border border-slate-200 dark:bg-slate-900 dark:text-slate-100'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
-          {displayedCertificates.map((cert) => (
-            <article key={cert.id} className="glass-card flex flex-col gap-4">
-              <h3 className="text-xl font-semibold text-primary dark:text-indigo-200">{cert.title}</h3>
-              <p className="text-sm uppercase tracking-[0.3em] text-secondary">{cert.category}</p>
-              <a href={cert.file} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-secondary hover:text-primary">
-                View Certificate <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-              </a>
+      {/* Case Studies */}
+      <section id="case-studies" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="section-title">Case Studies</h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center text-slate-600 dark:text-slate-300">
+          A closer look at how I design, architect, and deliver real-world software — from understanding the problem to shipping
+          maintainable solutions.
+        </p>
+        <div className="mt-12 grid gap-8 md:grid-cols-2">
+          {caseStudies.map((cs) => (
+            <article key={cs.title} className="glass-card flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xl font-semibold text-primary dark:text-indigo-200">{cs.title}</h3>
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary dark:bg-indigo-400/20 dark:text-indigo-200">
+                  {cs.role}
+                </span>
+              </div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-secondary">Problem</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{cs.problem}</p>
+              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-secondary">Approach</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{cs.approach}</p>
+              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-secondary">Outcome</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{cs.outcome}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {cs.tech.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full bg-primary/5 px-3 py-1 text-xs font-medium text-slate-800 dark:bg-indigo-500/10 dark:text-slate-100"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </article>
           ))}
         </div>
-        {canShowMore && (
-          <div className="mt-8 flex justify-center">
+      </section>
+
+      {/* Resume section */}
+      <section id="resume" className="bg-muted-bg py-16 dark:bg-slate-950">
+        <div className="mx-auto flex max-w-3xl flex-col items-center px-6 text-center">
+          <h2 className="section-title">Resume</h2>
+          <p className="mt-4 text-slate-600 dark:text-slate-300">
+            Prefer a traditional resume view? Download my latest CV as a PDF, including education, skills, and detailed experience.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
-              onClick={() => setVisibleCertificates((prev) => prev + 2)}
+              onClick={() => setShowResume(true)}
               className="rounded-full bg-primary px-8 py-3 text-sm font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-secondary"
             >
-              Show More
+              View Resume
             </button>
+            <a
+              href="/resume.pdf"
+              download
+              className="rounded-full border border-primary px-8 py-3 text-sm font-semibold uppercase tracking-widest text-primary transition hover:bg-primary hover:text-white dark:border-indigo-400 dark:text-indigo-200 dark:hover:bg-indigo-400 dark:hover:text-slate-900"
+            >
+              Download PDF
+            </a>
           </div>
-        )}
+        </div>
       </section>
 
       {/* Contact */}
       <section id="contact" className="bg-muted-bg py-20 dark:bg-slate-950">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="section-title">Contact</h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-2">
-            <div className="glass-card">
-              <h3 className="text-2xl font-semibold text-primary dark:text-indigo-200">Contact Information</h3>
-              <p className="mt-4 text-slate-600 dark:text-slate-300">
-                Let&apos;s talk about your next project, collaboration, or role.
-              </p>
-              <div className="mt-6 space-y-4 text-slate-700 dark:text-slate-200">
-                <p>
-                  <span className="font-semibold text-primary dark:text-indigo-200">Email:</span> ygchatse@gmail.com
-                </p>
-              </div>
-            </div>
-            <form onSubmit={handleContactSubmit} className="glass-card space-y-4">
-              <input type="text" name="name" placeholder="Your Name" required className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60" />
-              <input type="email" name="email" placeholder="Your Email" required className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60" />
-              <textarea name="message" placeholder="Your Message" rows={5} required className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60"></textarea>
-              <button type="submit" className="w-full rounded-2xl bg-secondary px-5 py-3 text-lg font-semibold text-white transition hover:bg-primary">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="text-center">
+            <h2 className="section-title">Contact</h2>
+            <p className="mt-4 text-slate-600 dark:text-slate-300">
+              Have an opportunity, project, or question? Send me a message and I&apos;ll get back to you as soon as I can.
+            </p>
+          </div>
+          <div className="mt-10 flex justify-center">
+            <form onSubmit={handleContactSubmit} className="glass-card w-full max-w-xl space-y-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60"
+              />
+              <textarea
+                name="message"
+                placeholder="Your Message"
+                rows={5}
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60"
+              ></textarea>
+              <button
+                type="submit"
+                className="w-full rounded-2xl bg-secondary px-5 py-3 text-lg font-semibold text-white transition hover:bg-primary"
+              >
                 {contactStatus === 'sending' ? 'Sending...' : contactStatus === 'sent' ? 'Message Sent!' : 'Send Message'}
               </button>
             </form>
