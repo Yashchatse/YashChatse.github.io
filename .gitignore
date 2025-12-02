@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-
+// comment out the next line if you want to track
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
