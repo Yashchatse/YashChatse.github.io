@@ -135,7 +135,7 @@ const socialLinks = [
   { icon: 'fa-instagram', label: 'Instagram', href: '#' },
 ]
 
-// TODO: Replace with your actual Formspree form ID after creating a form
+
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xqarbdbz'
 
 type Theme = 'light' | 'dark'
@@ -313,9 +313,9 @@ function App() {
       {/* About */}
       <section id="about" className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-12 rounded-[2.5rem] bg-white p-10 shadow-soft dark:bg-slate-900 md:grid-cols-[320px_1fr]">
-          <div className="relative mx-auto h-80 w-80 overflow-hidden rounded-full border-8 border-white shadow-2xl dark:border-slate-800">
-            <img src="/image/yashme.jpeg" alt="Yash Chatse" className="h-full w-full object-cover" />
-          </div>
+            <div className="relative mx-auto h-80 w-80 overflow-hidden rounded-full border-8 border-white shadow-2xl dark:border-slate-800">
+              <img src="/image/yashme.jpeg" alt="Yash Chatse" className="h-full w-full object-cover" />
+            </div>
           <div className="flex flex-col justify-center">
             <h2 className="section-title text-left md:text-left">About Me</h2>
             <p className="mt-6 text-lg text-slate-600 dark:text-slate-300">
