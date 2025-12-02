@@ -95,21 +95,11 @@ const socialLinks = [
     label: 'LinkedIn',
     href: 'https://www.linkedin.com/in/yash-chatse-06398425a/',
   },
-  { icon: 'fa-x-twitter', label: 'Twitter', href: 'https://x.com/' },
-  { icon: 'fa-instagram', label: 'Instagram', href: 'https://instagram.com/' },
+  { icon: 'fa-x-twitter', label: 'Twitter', href: '#' },
+  { icon: 'fa-instagram', label: 'Instagram', href: '#' },
 ]
-
-type Theme = 'light' | 'dark'
-
-const getInitialTheme = (): Theme => {
-  if (typeof window === 'undefined') return 'light'
-  const stored = localStorage.getItem('preferred-theme') as Theme | null
-  if (stored) return stored
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
+  
 function App() {
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme())
   const [headerVisible, setHeaderVisible] = useState(true)
   const [typedText, setTypedText] = useState('')
   const [phraseIndex, setPhraseIndex] = useState(0)
@@ -121,11 +111,6 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false)
 
   const lastScrollRef = useRef(0)
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('preferred-theme', theme)
-  }, [theme])
 
   useEffect(() => {
     const onScroll = () => {
@@ -193,8 +178,6 @@ function App() {
     }, 1200)
   }
 
-  const themeIcon = theme === 'dark' ? 'fa-sun' : 'fa-moon'
-
   return (
     <div className="min-h-screen bg-muted-bg text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* Header */}
@@ -214,13 +197,6 @@ function App() {
             ))}
           </ul>
           <div className="flex items-center gap-2">
-            <button
-              aria-label="Toggle theme"
-              onClick={() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))}
-              className="rounded-full border border-white/60 bg-white/70 p-3 text-primary shadow-soft transition hover:bg-secondary hover:text-white dark:border-slate-800 dark:bg-slate-800"
-            >
-              <i className={`fa-solid ${themeIcon}`}></i>
-            </button>
             <button
               onClick={() => setShowResume(true)}
               className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-secondary"

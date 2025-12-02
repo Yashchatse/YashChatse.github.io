@@ -8,14 +8,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+html {
+  @apply transition-colors duration-300;
+}
+
 
 body {
-  @apply bg-muted-bg text-slate-900 antialiased transition-colors duration-300;
+  @apply bg-muted-bg text-slate-900 antialiased;
 }
 
-[data-theme='dark'] body {
-  @apply bg-slate-950 text-slate-100;
-}
 
 .section-title {
   @apply text-3xl md:text-4xl font-bold font-georgia text-center text-primary dark:text-indigo-200;
