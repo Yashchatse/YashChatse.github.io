@@ -148,6 +148,10 @@ function App() {
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
   const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
+  const [emailValue, setEmailValue] = useState('')
+  const [emailValid, setEmailValid] = useState(true)
+  const [emailTouched, setEmailTouched] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [showResume, setShowResume] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -333,6 +337,13 @@ function App() {
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (contactStatus === 'sending') return
+    // validate email before sending
+    if (!validateEmail(emailValue)) {
+      setEmailValid(false)
+      setEmailTouched(true)
+      setEmailError('Please enter a valid email address')
+      return
+    }
     setContactStatus('sending')
     const form = event.currentTarget
     try {
@@ -357,6 +368,12 @@ function App() {
       setContactStatus('idle')
       alert('Something went wrong while sending your message. Please try again later.')
     }
+  }
+
+  const validateEmail = (value: string) => {
+    // Simple but strict-enough email regex: user@host.tld (TLD min 2 chars)
+    const re = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+    return re.test(value.trim())
   }
 
   return (
@@ -632,8 +649,26 @@ function App() {
                 name="email"
                 placeholder="Your Email"
                 required
-                className="w-full rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60"
+                value={emailValue}
+                onChange={(e) => {
+                  setEmailValue(e.target.value)
+                  if (emailTouched) {
+                    const ok = validateEmail(e.target.value)
+                    setEmailValid(ok)
+                    setEmailError(ok ? null : 'Please enter a valid email address')
+                  }
+                }}
+                onBlur={() => {
+                  setEmailTouched(true)
+                  const ok = validateEmail(emailValue)
+                  setEmailValid(ok)
+                  setEmailError(ok ? null : 'Please enter a valid email address')
+                }}
+                className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition focus:border-primary dark:border-slate-700 dark:bg-slate-900/60 ${emailTouched && !emailValid ? 'border-red-500 bg-red-50 dark:bg-red-900/30' : 'border-slate-200 bg-white/70'}`}
               />
+              {emailTouched && emailError && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">{emailError}</p>
+              )}
               <textarea
                 name="message"
                 placeholder="Your Message"
@@ -643,7 +678,8 @@ function App() {
               ></textarea>
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-secondary px-5 py-3 text-lg font-semibold text-white transition hover:bg-primary"
+                disabled={contactStatus === 'sending' || !emailValid}
+                className={`w-full rounded-2xl px-5 py-3 text-lg font-semibold text-white transition ${contactStatus === 'sending' || !emailValid ? 'bg-secondary/60 cursor-not-allowed' : 'bg-secondary hover:bg-primary'}`}
               >
                 {contactStatus === 'sending' ? 'Sending...' : contactStatus === 'sent' ? 'Message Sent!' : 'Send Message'}
               </button>
