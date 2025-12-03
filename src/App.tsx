@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type React from 'react'
 import type { FormEvent } from 'react'
 
 const navLinks = [
@@ -200,6 +201,130 @@ function App() {
 
   const themeIcon = theme === 'dark' ? 'fa-sun' : 'fa-moon'
 
+  const [isAnimating, setIsAnimating] = useState(false)
+  const themeBtnRef = useRef<HTMLButtonElement | null>(null)
+
+  const toggleThemeWithAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (isAnimating) return
+    const btn = themeBtnRef.current
+    if (!btn) {
+      setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+      return
+    }
+
+    setIsAnimating(true)
+    // Block interactions during animation
+    const prevPointer = document.body.style.pointerEvents
+    document.body.style.pointerEvents = 'none'
+
+    const rect = btn.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
+    // compute max distance from click center to viewport corners
+    const distances = [
+      Math.hypot(centerX - 0, centerY - 0),
+      Math.hypot(centerX - vw, centerY - 0),
+      Math.hypot(centerX - 0, centerY - vh),
+      Math.hypot(centerX - vw, centerY - vh),
+    ]
+    const maxDist = Math.max(...distances)
+    const finalSize = Math.ceil(maxDist * 2)
+
+    const targetTheme: Theme = theme === 'light' ? 'dark' : 'light'
+
+    // Lightweight reveal using a masked overlay. This is much cheaper than cloning the whole DOM
+    // and updates a single CSS mask per frame for a smooth animation.
+    const expandMs = 650
+    const holdMs = 80
+    const retractMs = 500
+
+    // overlay background should match previous theme so it hides the newly-applied theme
+    const overlayBg = theme === 'light' ? '#f8fafc' : '#0f1724'
+
+    // apply the target theme immediately so underlying content reflects it
+    if (targetTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+      setTheme('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      setTheme('light')
+    }
+
+    // create overlay that will mask the new theme and reveal it through a transparent circle
+    const existing = document.getElementById('theme-reveal-overlay')
+    if (existing) existing.remove()
+
+    const overlay = document.createElement('div')
+    overlay.id = 'theme-reveal-overlay'
+    Object.assign(overlay.style, {
+      position: 'fixed',
+      left: '0',
+      top: '0',
+      width: '100vw',
+      height: '100vh',
+      background: overlayBg,
+      zIndex: '9999',
+      pointerEvents: 'none',
+      willChange: 'mask-image, -webkit-mask-image',
+    } as CSSStyleDeclaration)
+
+    document.body.appendChild(overlay)
+
+    const maxR = Math.ceil(maxDist)
+
+    // helper to set mask with given radius (in px)
+    const setMaskRadius = (r: number) => {
+      const inner = Math.max(0, r)
+      const outer = inner + 1
+      const mask = `radial-gradient(circle at ${centerX}px ${centerY}px, transparent ${inner}px, black ${outer}px)`
+      overlay.style.webkitMaskImage = mask
+      overlay.style.maskImage = mask
+    }
+
+    // animate using requestAnimationFrame with an ease-out cubic
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+
+    let rafId: number | null = null
+    const startTime = performance.now()
+
+    const animateExpand = (now: number) => {
+      const elapsed = now - startTime
+      const t = Math.min(1, elapsed / expandMs)
+      const eased = easeOutCubic(t)
+      setMaskRadius(eased * maxR)
+      if (t < 1) {
+        rafId = window.requestAnimationFrame(animateExpand)
+      } else {
+        // hold briefly then retract
+        window.setTimeout(() => {
+          const retractStart = performance.now()
+          const animateRetract = (n2: number) => {
+            const e = Math.min(1, (n2 - retractStart) / retractMs)
+            const rev = 1 - easeOutCubic(e)
+            setMaskRadius(rev * maxR)
+            if (e < 1) {
+              rafId = window.requestAnimationFrame(animateRetract)
+            } else {
+              overlay.remove()
+              setIsAnimating(false)
+              document.body.style.pointerEvents = prevPointer || ''
+            }
+          }
+          rafId = window.requestAnimationFrame(animateRetract)
+        }, holdMs)
+      }
+    }
+
+    // start with no reveal
+    setMaskRadius(0)
+    rafId = window.requestAnimationFrame(animateExpand)
+  }
+
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId)
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -238,7 +363,7 @@ function App() {
     <div className="min-h-screen bg-muted-bg text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* Header */}
       <header className={`fixed inset-x-0 top-0 z-50 transform transition duration-300 ${headerVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
-        <nav className="mx-auto mt-4 flex max-w-6xl items-center justify-between rounded-full border border-white/40 bg-white/80 px-6 py-3 shadow-soft backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/70">
+        <nav className="mx-auto mt-4 flex max-w-6xl items-center justify-between rounded-full border border-white/40 bg-white/100 px-6 py-3 shadow-soft backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/70">
           <span className="font-georgia text-2xl font-semibold text-primary dark:text-indigo-200">My Portfolio</span>
           <ul className="hidden items-center gap-6 text-sm font-medium text-slate-700 dark:text-slate-200 md:flex">
             {navLinks.map((link) => (
@@ -255,8 +380,10 @@ function App() {
           <div className="flex items-center gap-2">
             <button
               aria-label="Toggle theme"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="rounded-full border border-white/60 bg-white/70 p-2 text-primary shadow-soft transition hover:bg-secondary hover:text-white dark:border-slate-800 dark:bg-slate-800"
+              ref={themeBtnRef}
+              onClick={toggleThemeWithAnimation}
+              disabled={isAnimating}
+              className={`rounded-full border border-white/60 bg-white/70 p-2 text-primary shadow-soft transition hover:bg-secondary hover:text-white dark:border-slate-800 dark:bg-slate-800 ${isAnimating ? 'cursor-not-allowed opacity-70' : ''}`}
             >
               <i className={`fa-solid ${themeIcon} text-xs`}></i>
             </button>
@@ -557,7 +684,7 @@ function App() {
             <button
               aria-label="Close resume"
               onClick={() => setShowResume(false)}
-              className="absolute right-4 top-4 rounded-full bg-secondary p-2 text-white shadow-lg hover:bg-primary"
+              className="absolute right-4 top-4 rounded-full bg-secondary p-1 text-white shadow-lg hover:bg-primary"
             >
               <i className="fa-solid fa-xmark"></i>
             </button>
