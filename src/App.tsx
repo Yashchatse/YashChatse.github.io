@@ -207,9 +207,6 @@ function App() {
 
   const [isAnimating, setIsAnimating] = useState(false)
   const themeBtnRef = useRef<HTMLButtonElement | null>(null)
-  const [visitorCount, setVisitorCount] = useState<number | null>(null)
-  const [visitorLoading, setVisitorLoading] = useState(false)
-  const [visitorFallback, setVisitorFallback] = useState(false)
 
   const toggleThemeWithAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -334,79 +331,6 @@ function App() {
     const section = document.getElementById(sectionId)
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-
- 
-  useEffect(() => {
-    
-    const namespace = 'yashchatse_portfolio'
-    const key = 'main_v1'
-    const storageKey = 'portfolio_visitor_v1'
-    const oneDay = 24 * 60 * 60 * 1000
-    const last = Number(localStorage.getItem(storageKey) || '0')
-    const now = Date.now()
-    const shouldIncrement = !last || now - last > oneDay
-
-    // Prevent double increments during React Strict Mode (dev) or duplicate runs
-    // by checking a short-lived session flag on window
-    const sessionFlag = (window as any).__countapi_hit_sent as number | undefined
-
-    const endpoint = shouldIncrement && !sessionFlag
-      ? `https://api.countapi.xyz/hit/${namespace}/${key}`
-      : `https://api.countapi.xyz/get/${namespace}/${key}`
-
-    setVisitorLoading(true)
-    fetch(endpoint)
-      .then((res) => {
-        if (!res.ok) throw new Error(`CountAPI returned status ${res.status}`)
-        return res.json()
-      })
-      .then((data) => {
-        // CountAPI may return { value } on hit/get
-        const val = typeof data.value === 'number' ? data.value : typeof data.count === 'number' ? data.count : null
-        if (val !== null) {
-          setVisitorCount(val)
-          if (shouldIncrement && !sessionFlag) {
-            try {
-              localStorage.setItem(storageKey, String(now))
-            } catch (e) {
-              // ignore storage errors
-            }
-            try {
-              ;(window as any).__countapi_hit_sent = Date.now()
-            } catch (e) {
-              // ignore
-            }
-          }
-        } else {
-          throw new Error('Unexpected CountAPI payload')
-        }
-      })
-      .catch((err) => {
-        // Log to console for debugging
-        // eslint-disable-next-line no-console
-        console.error('Visitor counter error:', err)
-        // Fallback: use a local-only counter stored in localStorage so the widget still shows something
-        try {
-          const fallbackKey = 'portfolio_visitor_fallback'
-          const prev = Number(localStorage.getItem(fallbackKey) || '0')
-          const newVal = shouldIncrement ? prev + 1 : prev || 1
-          localStorage.setItem(fallbackKey, String(newVal))
-          // mark that we're showing a fallback value
-          setVisitorFallback(true)
-          setVisitorCount(newVal)
-          if (shouldIncrement) {
-            try {
-              localStorage.setItem(storageKey, String(now))
-            } catch (e) {
-              // ignore
-            }
-          }
-        } catch (e) {
-          setVisitorCount(null)
-        }
-      })
-      .finally(() => setVisitorLoading(false))
-  }, [])
 
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -776,11 +700,6 @@ function App() {
           <p>&copy; {new Date().getFullYear()} Yash Chatse. All rights reserved.</p>
         </div>
       </footer>
-
-      {/* Visitor count (simple) */}
-      <div className="fixed left-6 bottom-6 z-50 rounded-full bg-white/90 px-3 py-2 text-sm font-medium text-slate-800 shadow-lg dark:bg-slate-900/80 dark:text-slate-100">
-        {visitorLoading ? 'Visitors: …' : visitorCount !== null ? `Visitors: ${visitorCount.toLocaleString()}` : 'Visitors: N/A'}
-      </div>
 
       {/* Floating Actions */}
       {showScrollTop && (
