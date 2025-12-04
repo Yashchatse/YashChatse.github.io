@@ -207,6 +207,8 @@ function App() {
 
   const [isAnimating, setIsAnimating] = useState(false)
   const themeBtnRef = useRef<HTMLButtonElement | null>(null)
+  const [visitorCount, setVisitorCount] = useState<number | null>(null)
+  const [visitorLoading, setVisitorLoading] = useState(false)
 
   const toggleThemeWithAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -333,6 +335,42 @@ function App() {
     const section = document.getElementById(sectionId)
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+
+  // Visitor counting: uses CountAPI (https://countapi.xyz) and localStorage to avoid
+  // incrementing the same visitor too often (we use a 24h window).
+  useEffect(() => {
+    const ns = encodeURIComponent(window.location.hostname || 'portfolio')
+    const key = 'portfolio_main_v1'
+    const storageKey = 'portfolio_visitor_v1'
+    const oneDay = 24 * 60 * 60 * 1000
+    const last = Number(localStorage.getItem(storageKey) || '0')
+    const now = Date.now()
+    const shouldIncrement = !last || now - last > oneDay
+
+    const endpoint = shouldIncrement
+      ? `https://api.countapi.xyz/hit/${ns}/${key}`
+      : `https://api.countapi.xyz/get/${ns}/${key}`
+
+    setVisitorLoading(true)
+    fetch(endpoint)
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.value === 'number') {
+          setVisitorCount(data.value)
+          if (shouldIncrement) {
+            try {
+              localStorage.setItem(storageKey, String(now))
+            } catch (e) {
+              // ignore storage errors
+            }
+          }
+        }
+      })
+      .catch(() => {
+        // ignore network errors — keep visitorCount null
+      })
+      .finally(() => setVisitorLoading(false))
+  }, [])
 
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -702,6 +740,11 @@ function App() {
           <p>&copy; {new Date().getFullYear()} Yash Chatse. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Visitor count (simple) */}
+      <div className="fixed left-6 bottom-6 z-50 rounded-full bg-white/90 px-3 py-2 text-sm font-medium text-slate-800 shadow-lg dark:bg-slate-900/80 dark:text-slate-100">
+        {visitorLoading ? 'Visitors: …' : visitorCount !== null ? `Visitors: ${visitorCount.toLocaleString()}` : 'Visitors: N/A'}
+      </div>
 
       {/* Floating Actions */}
       {showScrollTop && (
